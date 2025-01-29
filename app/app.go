@@ -23,6 +23,7 @@ func Run() {
 	app := fiber.New()
 
 	// Initialisaiton des routes
+	routes.SetupLoginRoutes(app)
 	routes.SetupPlatformRoutes(app)
 	routes.SetupUserRoutes(app)
 	routes.SetupStatusRoutes(app)
