@@ -1,8 +1,10 @@
+// controllers/login_controller.go
 package controllers
 
 import (
 	"videomaker/database"
 	"videomaker/models"
+	"videomaker/pkg/auth"
 	"videomaker/pkg/utils"
 
 	"github.com/gofiber/fiber/v2"
@@ -48,13 +50,20 @@ func LoginUserController(c *fiber.Ctx) error {
 			"Identifiants invalides", "")
 	}
 
-	// À ce stade, l'authentification est réussie
-	// Vous pourriez générer un JWT token ici
+	// Générer un token JWT
+	token, err := auth.GenerateToken(user.ID, user.Username)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError,
+			"Erreur lors de la génération du token", err.Error())
+	}
 
-	// Pour l'instant, retourner une réponse simple
+	// Retourner le token et les informations de l'utilisateur
 	return utils.SuccessResponse(c, fiber.StatusOK, "Connexion réussie", fiber.Map{
-		"user_id":  user.ID,
-		"username": user.Username,
-		// Ne pas inclure le mot de passe dans la réponse
+		"user": fiber.Map{
+			"id":       user.ID,
+			"username": user.Username,
+			"name":     user.Name,
+		},
+		"token": token,
 	})
 }

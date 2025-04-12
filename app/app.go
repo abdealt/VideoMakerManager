@@ -1,17 +1,28 @@
+// app/app.go
 package app
 
 import (
 	"videomaker/database"
+	"videomaker/pkg/auth"
+	"videomaker/pkg/middleware"
 	"videomaker/pkg/migrations"
 	"videomaker/routes"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
 func Run() {
 	// Connexion à la base de données
 	db, err := database.Connect()
 	if err != nil {
+		panic(err)
+	}
+
+	// Initialisation de JWT
+	if err := auth.Init(); err != nil {
 		panic(err)
 	}
 
@@ -22,14 +33,30 @@ func Run() {
 
 	// Instance de l'application avec fiber
 	app := fiber.New(fiber.Config{
-		ErrorHandler: customErrorHandler, // On ajoutera un gestionnaire d'erreur personnalisé
+		ErrorHandler: customErrorHandler,
 	})
+
+	// Middleware global
+	app.Use(recover.New())        // Récupération des panics
+	app.Use(logger.New())         // Logs des requêtes
+	app.Use(cors.New(cors.Config{ // Configuration CORS
+		AllowOrigins:     "http://localhost:4200", // URL du frontend Angular
+		AllowMethods:     "GET,POST,PUT,DELETE",
+		AllowHeaders:     "Origin,Content-Type,Accept,Authorization",
+		AllowCredentials: true,
+	}))
 
 	// Groupe de routes pour l'API v1
 	v1 := app.Group("/api/v1")
 
-	// Initialisation des routes
+	// Routes publiques
 	routes.SetupAuthRoutes(v1)
+
+	// Routes protégées
+	// Application du middleware d'authentification
+	v1.Use(middleware.Protected())
+
+	// Initialisation des routes protégées
 	routes.SetupPlatformRoutes(v1)
 	routes.SetupUserRoutes(v1)
 	routes.SetupStatusRoutes(v1)
