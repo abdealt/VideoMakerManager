@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"github.com/abdealt/videomaker/database"
-	"github.com/abdealt/videomaker/models"
+	"videomaker/database"
+	"videomaker/models"
 
 	"github.com/gofiber/fiber/v2"
 )

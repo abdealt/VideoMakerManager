@@ -1,7 +1,8 @@
 package migrations
 
 import (
-	"github.com/abdealt/videomaker/models"
+	"videomaker/models"
+
 	"gorm.io/gorm"
 )
 

@@ -1,25 +1,26 @@
 package routes
 
 import (
-	"github.com/abdealt/videomaker/controllers"
+	"videomaker/controllers"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func SetupUserRoutes(app *fiber.App) {
-	// Routes model user
-	// Route pour créer un utilisateur
-	app.Post("/users", controllers.CreateUser)
+func SetupUserRoutes(router fiber.Router) {
+	users := router.Group("/users")
 
-	// Route pour récupérer tous les utilisateurs
-	app.Get("/users", controllers.GetUsers)
+	// Route pour créer un utilisateur
+	users.Post("/", controllers.CreateUser)
+
+	// Route pour récupérer tous les utilisateurs avec pagination
+	users.Get("/", controllers.GetUsers)
 
 	// Route pour récupérer un utilisateur par ID
-	app.Get("/users/:id", controllers.GetUserByID)
+	users.Get("/:id", controllers.GetUserByID)
 
 	// Route pour mettre à jour un utilisateur
-	app.Put("/users/:id", controllers.UpdateUser)
+	users.Put("/:id", controllers.UpdateUser)
 
 	// Route pour supprimer un utilisateur
-	app.Delete("/users/:id", controllers.DeleteUser)
+	users.Delete("/:id", controllers.DeleteUser)
 }
