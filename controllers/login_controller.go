@@ -3,39 +3,58 @@ package controllers
 import (
 	"videomaker/database"
 	"videomaker/models"
+	"videomaker/pkg/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Vérification du mot de passe lors de la connexion
+// LoginUserController gère l'authentification des utilisateurs
 func LoginUserController(c *fiber.Ctx) error {
 	var loginData struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
 	}
 
+	// Connexion à la base de données
 	db, err := database.Connect()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("Erreur lors de l'accès à la base de données")
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError,
+			"Erreur de connexion à la base de données", err.Error())
 	}
 
 	// Récupérer les données de la requête
 	if err := c.BodyParser(&loginData); err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString("Erreur dans les données envoyées")
+		return utils.ErrorResponse(c, fiber.StatusBadRequest,
+			"Erreur dans les données envoyées", err.Error())
+	}
+
+	// Validation des données
+	if loginData.Username == "" || loginData.Password == "" {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest,
+			"Nom d'utilisateur et mot de passe requis", "")
 	}
 
 	// Récupérer l'utilisateur de la base de données
 	var user models.User
 	if err := db.Where("username = ?", loginData.Username).First(&user).Error; err != nil {
-		return c.Status(fiber.StatusUnauthorized).SendString("Utilisateur non trouvé")
+		return utils.ErrorResponse(c, fiber.StatusUnauthorized,
+			"Identifiants invalides", "")
 	}
 
 	// Comparer le mot de passe fourni avec le mot de passe haché
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginData.Password)); err != nil {
-		return c.Status(fiber.StatusUnauthorized).SendString("Mot de passe incorrect")
+		return utils.ErrorResponse(c, fiber.StatusUnauthorized,
+			"Identifiants invalides", "")
 	}
 
-	// Si le mot de passe est correct, tu peux générer un token ou effectuer d'autres actions
-	return c.SendString("Connexion réussie")
+	// À ce stade, l'authentification est réussie
+	// Vous pourriez générer un JWT token ici
+
+	// Pour l'instant, retourner une réponse simple
+	return utils.SuccessResponse(c, fiber.StatusOK, "Connexion réussie", fiber.Map{
+		"user_id":  user.ID,
+		"username": user.Username,
+		// Ne pas inclure le mot de passe dans la réponse
+	})
 }
