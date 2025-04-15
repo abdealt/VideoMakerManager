@@ -40,7 +40,7 @@ func Run() {
 	app.Use(recover.New())        // Récupération des panics
 	app.Use(logger.New())         // Logs des requêtes
 	app.Use(cors.New(cors.Config{ // Configuration CORS
-		AllowOrigins:     "http://localhost:4200", // URL du frontend Angular
+		AllowOrigins:     "http://localhost:3000", // URL du frontend Angular
 		AllowMethods:     "GET,POST,PUT,DELETE",
 		AllowHeaders:     "Origin,Content-Type,Accept,Authorization",
 		AllowCredentials: true,
@@ -62,8 +62,8 @@ func Run() {
 	routes.SetupStatusRoutes(v1)
 	routes.SetupVideoRoutes(v1)
 
-	// Lancement de l'application sur le port 3000
-	if err := app.Listen(":3000"); err != nil {
+	// Lancement de l'application (Backend) sur le port 8080
+	if err := app.Listen(":8080"); err != nil {
 		panic(err)
 	}
 }
