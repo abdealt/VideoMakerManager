@@ -23,14 +23,39 @@ func Init() error {
 		return fmt.Errorf("erreur lors du chargement du fichier .env: %v", err)
 	}
 
-	username := os.Getenv("USERNAME")
-	password := os.Getenv("PASSWORD")
-	host := os.Getenv("HOST")
-	database := os.Getenv("DATABASE")
-	port := os.Getenv("PORT")
+	// Utiliser DB_USERNAME au lieu de USERNAME pour éviter les conflits
+	username := os.Getenv("DB_USERNAME")
+	password := os.Getenv("DB_PASSWORD")
+	host := os.Getenv("DB_HOST")
+	database := os.Getenv("DB_DATABASE")
+	port := os.Getenv("DB_PORT")
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		username, password, host, port, database)
+	// Valeurs par défaut si les variables ne sont pas définies
+	if username == "" {
+		username = "root"
+	}
+	if host == "" {
+		host = "localhost"
+	}
+	if port == "" {
+		port = "3306"
+	}
+	if database == "" {
+		database = "vmm"
+	}
+
+	// Construction du DSN
+	var dsn string
+	if password == "" {
+		// Si pas de mot de passe, ne pas inclure le ':'
+		dsn = fmt.Sprintf("%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+			username, host, port, database)
+	} else {
+		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+			username, password, host, port, database)
+	}
+
+	fmt.Printf("Tentative de connexion à la base de données avec l'utilisateur: %s\n", username)
 
 	once.Do(func() {
 		var err error
