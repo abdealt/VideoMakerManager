@@ -6,21 +6,24 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// SetupPlatformRoutes configure les routes pour le modèle Platform
+// Cette fonction crée un groupe de routes pour les opérations CRUD sur les plateformes.
 func SetupPlatformRoutes(router fiber.Router) {
-	platform := router.Group("/platform")
+	platforms := router.Group("/platforms")
+
 	// Routes model Platform
 	// Route pour créer une platforme
-	platform.Post("/platform", controllers.CreatePlatform)
+	platforms.Post("/", controllers.CreatePlatform)
 
 	// Route pour récupérer tous les platforme
-	platform.Get("/platform", controllers.GetPlatforms)
+	platforms.Get("/", controllers.GetPlatforms)
 
 	// Route pour récupérer une platforme par ID
-	platform.Get("/platform/:id", controllers.GetPlatformByID)
+	platforms.Get("/:id", controllers.GetPlatformByID)
 
 	// Route pour mettre à jour une platforme
-	platform.Put("/platform/:id", controllers.UpdatePlatform)
+	platforms.Put("/:id", controllers.UpdatePlatform)
 
 	// Route pour supprimer une platforme
-	platform.Delete("/platform/:id", controllers.DeletePlatform)
+	platforms.Delete("/:id", controllers.DeletePlatform)
 }

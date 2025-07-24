@@ -7,20 +7,20 @@ import (
 )
 
 func SetupStatusRoutes(router fiber.Router) {
-	status := router.Group("/status")
+	statuses := router.Group("/statuses")
 	// Routes model status
 	// Route pour créer un Status
-	status.Post("/status", controllers.CreateStatus)
+	statuses.Post("/", controllers.CreateStatus)
 
 	// Route pour récupérer tous les Status
-	status.Get("/status", controllers.GetStatus)
+	statuses.Get("/", controllers.GetStatus)
 
 	// Route pour récupérer un Status par ID
-	status.Get("/status/:id", controllers.GetStatusByID)
+	statuses.Get("/:id", controllers.GetStatusByID)
 
 	// Route pour mettre à jour un Status
-	status.Put("/status/:id", controllers.UpdateStatus)
+	statuses.Put("/:id", controllers.UpdateStatus)
 
 	// Route pour supprimer un Status
-	status.Delete("/status/:id", controllers.DeleteStatus)
+	statuses.Delete("/:id", controllers.DeleteStatus)
 }
