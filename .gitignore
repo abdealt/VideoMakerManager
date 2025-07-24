@@ -12,3 +12,6 @@ logs
 # Répertoire de build
 dist
 build
+
+# Automatisation
+makefile
